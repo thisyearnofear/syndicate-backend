@@ -1,20 +1,16 @@
-# A lens authorization app workflow example
+# Lens Authentication Workflow Example App
 
-This code shows you examples of how to setup your backend authorization app workflow.
-Note you have to add your own logic into this repo it is not just fork and run unless
-you want to sponsor everyone.
+This code provides examples of how to set up your backend authorization app workflow. Note that you need to add your own logic to this repository; it is not a simple fork-and-run solution unless you intend to authorize and sponsor everyone.
 
-# Setup repo
+## Setup repo
 
-The API needs to have `.env` file which holds the private key within it. Note if your using vercel
-you can put your private key in the vercel environment variable. Note you can also use more secure 
-approach's of key management like using AWS secrets but for this example we keeping it simple.
+The API requires a `.env` file that contains the private key. If you are using Vercel, you can store your private key in the Vercel environment variables. For a more secure approach, consider using key management services like AWS Secrets Manager. However, for this example, we are keeping it simple.
 
 ```bash
 cp .env.example .env
 ```
 
-Then fill out the details in it:
+Then, fill out the details in the `.env` file:
 
 ```bash
 PRIVATE_KEY=INSERT_PRIVATE_KEY
@@ -23,75 +19,71 @@ ENVIRONMENT=MAINNET|TESTNET
 SHARED_SECRET=INSERT_SECRET
 ```
 
-The `SHARED_SECRET` is required on the verify operation so people can not just call it directly and use the signed
-sources. It has to be 10 characters or over.
+The `SHARED_SECRET` is required for the verification operation to ensure that only authorized requests can use the signed sources.
 
-# Running
+## Running
 
-To start it up just run:
+To start the application, simply run:
 
 ```bash
 npm start
 ```
 
-It will start on localhost:3003
+The application will start on `http://localhost:3003` unless a different port is specified via the `PORT` environment variable.
 
-# API Documentation: Authentication and App verification Service
+## API Documentation
 
 This documentation provides examples for interacting with the API using `curl`.
 
-## Endpoints
+## Authorize Endpoint
 
-### Authorize
+URL: `POST /<YOUR_SHARED_SECRET>/authorize`
 
-URL: POST /authorize
-
-Request
+**Request:**
 
 ```bash
-curl -X POST http://localhost:3003/authorize \
--H "Content-Type: application/json" \
--d '{
-  "account": "0x4B20993Bc481177ec7E8f571ceCaE8A9e22C02db",
-  "signedBy": "0x78731D3Ca6b7E34aC0F824c42a7cC18A495cabaB"
-}'
+curl -X POST http://localhost:3003/<YOUR_SHARED_SECRET>/authorize \
+     -H "Content-Type: application/json" \
+     -d '{
+      "account": "0x4B20993Bc481177ec7E8f571ceCaE8A9e22C02db",
+      "signedBy": "0x78731D3Ca6b7E34aC0F824c42a7cC18A495cabaB"
+    }'
 ```
 
-Note the response is hard coded as sponsored false to avoid any funds being spent without
-you adding your own custom logic in.
+**Response:**
 
 ```json
 {
   "allowed": true,
   "sponsored": false,
-  "appVerificationEndpoint": "http://localhost:3003/verify-operation"
+  "appVerificationEndpoint": "http://localhost:3003/<YOUR_SHARED_SECRET>/verify-operation"
 }
 ```
 
-### App verification
+Note that the response is hard-coded with `"sponsored": false` to prevent any funds from being spent without you adding your own custom logic. By default, the application does not sponsor.
 
-URL: POST /:YOUR_SHARED_SECRET/verify-operation
+## Verification Endpoint
 
-This endpoint is used to sign verification request from Lens API.
-It's returned by the `/authorize` endpoint as `appVerificationEndpoint`.
+URL: `POST /:YOUR_SHARED_SECRET/verify-operation`
 
-The shared secret is really important to keep your endpoint protected.
+This endpoint is used to sign operation verification requests from the Lens API.
 
-Request
+**Request:**
 
 ```bash
-curl -X POST http://localhost:3003/REPLACE_SHARED_SECRET/verify-operation \
--H "Content-Type: application/json" \
--d '{
-  "nonce": "42",
-  "deadline": "1630000000",
-  "operation": "Post",
-  "validator": "0x78731D3Ca6b7E34aC0F824c42a7cC18A495cabaB",
-  "account": "0x4F10f685B6BF165e86f41CDf4a906B17F295C235"
-}'
+curl -X POST http://localhost:3003/<YOUR_SHARED_SECRET>/verify-operation \
+     -H "Content-Type: application/json" \
+     -d '{
+       "nonce": "42",
+       "deadline": "1630000000",
+       "operation": "Post",
+       "validator": "0x78731D3Ca6b7E34aC0F824c42a7cC18A495cabaB",
+       "account": "0x4F10f685B6BF165e86f41CDf4a906B17F295C235"
+     }'
 ```
 
-Example Response
+_Response:_
+
 ```json
 {
   "allowed": true,
