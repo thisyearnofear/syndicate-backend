@@ -82,7 +82,7 @@ curl -X POST http://localhost:3003/<YOUR_SHARED_SECRET>/verify-operation \
      }'
 ```
 
-_Response:_
+**Response:**
 
 ```json
 {
