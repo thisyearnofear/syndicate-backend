@@ -76,7 +76,7 @@ app.post("/:sharedSecret/verify-operation", async (req, res) => {
   );
 
   // Validate if the account is authorized to perform the requested operation
-  const isAllowed = true; // Replace with actual validation logic
+  const isAllowed = true; // Replace with your validation logic
 
   if (!isAllowed) {
     return res.json({
