@@ -3,8 +3,6 @@ const { chains } = require("@lens-chain/sdk/viem");
 
 exports.PORT = process.env.PORT || 3003;
 
-exports.APP = process.env.APP ?? never("APP env variable is required");
-
 exports.PRIVATE_KEY = process.env.PRIVATE_KEY ?? never("PRIVATE_KEY env variable is required");
 
 exports.SHARED_SECRET =
