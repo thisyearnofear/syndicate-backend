@@ -1,0 +1,2 @@
+# To support CSRF middleware, install the following dependencies:
+npm install cookie-parser

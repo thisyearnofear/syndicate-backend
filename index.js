@@ -4,9 +4,14 @@ const express = require("express");
 
 const { PORT, PRIVATE_KEY, SHARED_SECRET } = require("./config");
 
+const cookieParser = require('cookie-parser');
+const { csrfMiddleware } = require('./csrf');
+
 const app = express();
 
 app.use(express.json());
+app.use(cookieParser());
+app.use(csrfMiddleware);
 
 // Health check endpoint
 app.get("/", function (_, res) {
