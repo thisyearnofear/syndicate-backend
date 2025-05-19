@@ -1,0 +1,33 @@
+{
+    "language": "Solidity",
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200,
+            "details": {
+                "yul": true,
+                "yulDetails": {
+                    "stackAllocation": true,
+                    "optimizerSteps": "dhfoDgvulfnTUtnIf"
+                }
+            }
+        },
+        "viaIR": true,
+        "evmVersion": "paris",
+        "libraries": {},
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers",
+                    "metadata"
+                ],
+                "": [
+                    "ast"
+                ]
+            }
+        }
+    }
+}
