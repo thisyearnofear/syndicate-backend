@@ -3,10 +3,10 @@ FROM node:18-alpine
 WORKDIR /app
 
 # Copy package files first for better layer caching
-COPY package.json package-lock.json* ./
+COPY package.json package-lock.json* .npmrc ./
 
-# Install dependencies
-RUN npm ci --only=production
+# Install dependencies with legacy-peer-deps flag
+RUN npm ci --only=production --legacy-peer-deps
 
 # Copy application code
 COPY . .

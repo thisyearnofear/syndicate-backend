@@ -1,6 +1,9 @@
 {
   "name": "syndicate-backend",
   "version": "1.0.0",
+  "engines": {
+    "node": ">=18.x <=22.x"
+  },
   "scripts": {
     "start": "node -r dotenv/config index.js",
     "dev": "nodemon -r dotenv/config index.js",
