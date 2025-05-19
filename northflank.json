@@ -1,0 +1,34 @@
+{
+    "name": "syndicate-backend",
+    "type": "service",
+    "language": "nodejs",
+    "build": {
+        "command": "npm install",
+        "output_directory": "."
+    },
+    "run": {
+        "command": "npm start"
+    },
+    "environment": {
+        "NODE_ENV": "production"
+    },
+    "resources": {
+        "cpu": 1,
+        "memory": 1024
+    },
+    "ports": [
+        {
+            "name": "http",
+            "port": 3003,
+            "protocol": "http"
+        }
+    ],
+    "healthcheck": {
+        "path": "/health",
+        "initial_delay_seconds": 10,
+        "period_seconds": 30,
+        "timeout_seconds": 5,
+        "success_threshold": 1,
+        "failure_threshold": 3
+    }
+}

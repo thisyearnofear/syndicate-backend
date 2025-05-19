@@ -1,11 +1,12 @@
 require("dotenv/config");
 
 const express = require("express");
-const cors = require('cors');
+const cors = require("cors");
 
 const PORT = process.env.PORT || 3003;
 const PRIVATE_KEY = process.env.PRIVATE_KEY;
 const SHARED_SECRET = process.env.SHARED_SECRET;
+const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:3000";
 
 if (!PRIVATE_KEY) {
   console.error("ERROR: PRIVATE_KEY environment variable is required");
@@ -19,27 +20,38 @@ if (!SHARED_SECRET) {
 
 const app = express();
 
-// Basic CORS setup
-app.use(cors({
-  origin: "http://localhost:3000",
-  credentials: true
-}));
+// Enhanced CORS setup with environment variable support
+app.use(
+  cors({
+    origin: FRONTEND_URL,
+    credentials: true,
+  })
+);
 
 // Parse JSON requests
 app.use(express.json());
 
-// Health check endpoint
+// Root endpoint for basic checks
 app.get("/", function (_, res) {
   res.json({ online: true });
 });
 
+// Dedicated health check endpoint for Northflank
+app.get("/health", function (_, res) {
+  res.json({
+    status: "healthy",
+    timestamp: new Date().toISOString(),
+    version: process.env.npm_package_version || "1.0.0",
+  });
+});
+
 // Simple authorization middleware
 app.use((req, res, next) => {
-  // Skip auth check for health check endpoint
-  if (req.path === '/' && req.method === 'GET') {
+  // Skip auth check for health check endpoints
+  if ((req.path === "/" || req.path === "/health") && req.method === "GET") {
     return next();
   }
-  
+
   const authHeader = req.headers["authorization"];
   console.log(`INFO: ${req.method} ${req.originalUrl}`);
 
@@ -77,13 +89,13 @@ app.post("/authorize", async (req, res) => {
     sponsored: isSponsored,
     signingKey: PRIVATE_KEY,
   };
-  
-  console.log(`INFO: Sending response: ${JSON.stringify({...response, signingKey: 'REDACTED'})}`);
+
+  console.log(`INFO: Sending response: ${JSON.stringify({ ...response, signingKey: "REDACTED" })}`);
   res.json(response);
 });
 
 // Start server
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
-  console.log(`CORS enabled for origin: http://localhost:3000`);
+  console.log(`CORS enabled for origin: ${FRONTEND_URL}`);
 });

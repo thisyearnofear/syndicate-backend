@@ -9,7 +9,8 @@
   },
   "dependencies": {
     "@across-protocol/sdk-v2": "^0.24.4",
-    "@lens-chain/sdk": "^1.0.3",
+    "@lens-chain/sdk": "canary",
+    "@lens-protocol/metadata": "canary",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
     "dotenv": "^16.5.0",
@@ -21,7 +22,7 @@
     "pg-hstore": "^2.3.4",
     "sequelize": "^6.37.1",
     "socket.io": "^4.7.4",
-    "viem": "^2.21.53",
+    "viem": "^2.29.4",
     "winston": "^3.11.0"
   },
   "devDependencies": {
