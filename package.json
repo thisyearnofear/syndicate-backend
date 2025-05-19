@@ -13,7 +13,7 @@
   "dependencies": {
     "@across-protocol/sdk-v2": "^0.24.4",
     "@lens-chain/sdk": "canary",
-    "@lens-protocol/metadata": "canary",
+    "@lens-protocol/metadata": "^2.0.0",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
     "dotenv": "^16.5.0",
