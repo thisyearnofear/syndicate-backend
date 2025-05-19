@@ -3,6 +3,15 @@ const { privateKeyToAccount } = require("viem/accounts");
 const { chains } = require("@lens-chain/sdk/viem");
 const config = require("../config");
 
+// Import isMainnetEnvironment from config
+const { CHAIN, LENS_CHAIN_DETAILS, ACTIVE_CHAIN_DETAILS, CHAIN_IDS } = require("../config");
+
+// Function to check if environment indicates mainnet
+const isMainnetEnvironment = (env) => {
+  const envLower = env.toLowerCase();
+  return envLower === "mainnet" || envLower === "production";
+};
+
 // Default active chain based on environment
 let activeChain = config.CHAIN;
 let activeRpcUrl = config.ACTIVE_CHAIN_DETAILS.rpcUrl;
@@ -55,16 +64,18 @@ let walletClient = getDynamicWalletClient();
 
 /**
  * Switch the active chain (can be called at runtime)
- * @param {string} environment - Either 'mainnet' or 'testnet'
+ * @param {string} environment - Either 'mainnet', 'production', or 'testnet'
  * @returns {boolean} Whether the switch was successful
  */
 function switchChain(environment) {
-  if (environment.toLowerCase() !== "mainnet" && environment.toLowerCase() !== "testnet") {
-    console.error(`Invalid environment: ${environment}. Must be 'mainnet' or 'testnet'`);
+  if (!["mainnet", "production", "testnet"].includes(environment.toLowerCase())) {
+    console.error(
+      `Invalid environment: ${environment}. Must be 'mainnet', 'production', or 'testnet'`
+    );
     return false;
   }
 
-  const isMainnet = environment.toLowerCase() === "mainnet";
+  const isMainnet = isMainnetEnvironment(environment);
   activeChain = isMainnet ? chains.mainnet : chains.testnet;
   activeRpcUrl = isMainnet
     ? config.LENS_CHAIN_DETAILS.mainnet.rpcUrl
@@ -83,7 +94,7 @@ function switchChain(environment) {
 /**
  * Create a wallet client with a specific account
  * @param {string} privateKey - The private key to use for the wallet
- * @param {string} [environment] - Optional environment to create the client for (mainnet/testnet)
+ * @param {string} [environment] - Optional environment to create the client for
  * @returns {import('viem').WalletClient} The wallet client
  */
 function createWalletClientWithAccount(privateKey, environment) {
@@ -95,7 +106,7 @@ function createWalletClientWithAccount(privateKey, environment) {
     let rpcUrl = activeRpcUrl;
 
     if (environment) {
-      const isMainnet = environment.toLowerCase() === "mainnet";
+      const isMainnet = isMainnetEnvironment(environment);
       chain = isMainnet ? chains.mainnet : chains.testnet;
       rpcUrl = isMainnet
         ? config.LENS_CHAIN_DETAILS.mainnet.rpcUrl

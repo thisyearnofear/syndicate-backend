@@ -10,8 +10,14 @@ exports.SHARED_SECRET =
 
 const ENVIRONMENT = process.env.ENVIRONMENT ?? never("ENVIRONMENT env variable is required");
 
-// Set chain based on environment
-exports.CHAIN = ENVIRONMENT.toLowerCase() === "mainnet" ? chains.mainnet : chains.testnet;
+// Function to check if environment indicates mainnet
+const isMainnetEnvironment = (env) => {
+  const envLower = env.toLowerCase();
+  return envLower === "mainnet" || envLower === "production";
+};
+
+// Set chain based on environment (accepts both "mainnet" and "production")
+exports.CHAIN = isMainnetEnvironment(ENVIRONMENT) ? chains.mainnet : chains.testnet;
 
 // Export chain IDs for use throughout the application
 exports.CHAIN_IDS = {
@@ -38,8 +44,7 @@ exports.LENS_CHAIN_DETAILS = {
   },
 };
 
-// Get active chain details
-exports.ACTIVE_CHAIN_DETAILS =
-  ENVIRONMENT.toLowerCase() === "mainnet"
-    ? exports.LENS_CHAIN_DETAILS.mainnet
-    : exports.LENS_CHAIN_DETAILS.testnet;
+// Get active chain details (using the same function for consistency)
+exports.ACTIVE_CHAIN_DETAILS = isMainnetEnvironment(ENVIRONMENT)
+  ? exports.LENS_CHAIN_DETAILS.mainnet
+  : exports.LENS_CHAIN_DETAILS.testnet;
