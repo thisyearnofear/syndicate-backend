@@ -13,6 +13,38 @@ The backend service uses `index.js` as its main entry point. This file contains 
 
 Note that `simple-server.js` is an alternative, simplified implementation that can be used for testing but is not the main server file.
 
+## Docker-based Deployment
+
+The backend service is configured to be deployed on Northflank using Docker. The deployment process is defined by:
+
+1. **Dockerfile**: Defines the build and runtime environment for the application
+2. **northflank.json**: Configures Northflank to use the Docker build method
+3. **.dockerignore**: Excludes unnecessary files from the Docker build
+
+For local testing, a `docker-compose.yml` file is also provided.
+
+### Building and Running Locally with Docker
+
+```bash
+# Build the Docker image
+docker build -t syndicate-backend .
+
+# Run the container
+docker run -p 3003:3003 \
+  -e PRIVATE_KEY=your_private_key \
+  -e SHARED_SECRET=your_shared_secret \
+  -e FRONTEND_URL=http://localhost:3000 \
+  -e ENVIRONMENT=testnet \
+  syndicate-backend
+```
+
+Alternatively, use Docker Compose:
+
+```bash
+# Start with Docker Compose
+docker-compose up
+```
+
 ## Northflank Setup
 
 The backend service is configured to be deployed on Northflank with the following settings:

@@ -1,13 +1,10 @@
 {
     "name": "syndicate-backend",
     "type": "service",
-    "language": "nodejs",
+    "build_method": "docker",
     "build": {
-        "command": "npm install",
-        "output_directory": "."
-    },
-    "run": {
-        "command": "npm start"
+        "dockerfile": "./Dockerfile",
+        "context": "."
     },
     "environment": {
         "NODE_ENV": "production"
