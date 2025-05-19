@@ -30,7 +30,8 @@ For local testing, a `docker-compose.yml` file is also provided.
 docker build -t syndicate-backend .
 
 # Run the container
-docker run -p 3003:3003 \
+docker run -p 8080:8080 \
+  -e PORT=8080 \
   -e PRIVATE_KEY=your_private_key \
   -e SHARED_SECRET=your_shared_secret \
   -e FRONTEND_URL=http://localhost:3000 \

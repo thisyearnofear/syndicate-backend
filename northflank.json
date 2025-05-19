@@ -15,9 +15,10 @@
     },
     "ports": [
         {
-            "name": "http",
-            "port": 3003,
-            "protocol": "http"
+            "name": "site",
+            "port": 8080,
+            "protocol": "http",
+            "public": true
         }
     ],
     "healthcheck": {
