@@ -619,25 +619,25 @@ contract SyndicateFactory {
         uint256 causePercentage
     );
 
+    // Add debug events
+    event ValidationPassed(string message);
+    event TreasuryCreated(address treasuryAddress);
+    event RegistryCallStarted(address treasuryAddress);
+    event RegistryCallCompleted(address treasuryAddress);
+
     /**
      * @dev Constructor
      * @param _registryAddress Address of the SyndicateRegistry contract
      * @param _safeFactory Address of the Safe wallet factory (if applicable)
      */
     constructor(address _registryAddress, address _safeFactory) {
+        require(_registryAddress != address(0), "SyndicateFactory: registry address cannot be zero");
         registry = SyndicateRegistry(_registryAddress);
         safeFactory = _safeFactory;
     }
 
     /**
      * @dev Creates a new Syndicate with the specified parameters
-     * @param _name Name of the Syndicate
-     * @param _cause Cause that the Syndicate supports
-     * @param _causeAddress Address of the cause receiving donations
-     * @param _causePercentage Percentage of winnings allocated to the cause (in basis points, e.g. 2000 = 20%)
-     * @param _owners List of owners for the Syndicate treasury
-     * @param _threshold Number of confirmations required for treasury transactions
-     * @return treasuryAddress Address of the newly created Syndicate Treasury
      */
     function createSyndicate(
         string memory _name,
@@ -647,13 +647,27 @@ contract SyndicateFactory {
         address[] memory _owners,
         uint256 _threshold
     ) external returns (address treasuryAddress) {
-        // Validate inputs
+        // Validate inputs with detailed error messages
         require(bytes(_name).length > 0, "SyndicateFactory: name cannot be empty");
         require(bytes(_cause).length > 0, "SyndicateFactory: cause cannot be empty");
         require(_causeAddress != address(0), "SyndicateFactory: cause address cannot be zero");
-        require(_causePercentage <= 10000, "SyndicateFactory: percentage cannot exceed 100%");
+        require(_causePercentage <= 10000, "SyndicateFactory: percentage cannot exceed 10000 basis points (100%)");
+        require(_causePercentage >= 500, "SyndicateFactory: percentage must be at least 500 basis points (5%)");
         require(_owners.length > 0, "SyndicateFactory: must have at least one owner");
-        require(_threshold > 0 && _threshold <= _owners.length, "SyndicateFactory: invalid threshold");
+        require(_owners.length <= 10, "SyndicateFactory: cannot have more than 10 owners");
+        require(_threshold > 0, "SyndicateFactory: threshold must be greater than 0");
+        require(_threshold <= _owners.length, "SyndicateFactory: threshold cannot exceed number of owners");
+
+        // Validate owner addresses
+        for (uint256 i = 0; i < _owners.length; i++) {
+            require(_owners[i] != address(0), "SyndicateFactory: owner address cannot be zero");
+            // Check for duplicate owners
+            for (uint256 j = i + 1; j < _owners.length; j++) {
+                require(_owners[i] != _owners[j], "SyndicateFactory: duplicate owner address");
+            }
+        }
+
+        emit ValidationPassed("All input validation passed");
 
         // Create new Syndicate Treasury
         SyndicateTreasury treasury = new SyndicateTreasury(
@@ -664,16 +678,24 @@ contract SyndicateFactory {
         );
 
         treasuryAddress = address(treasury);
+        emit TreasuryCreated(treasuryAddress);
 
         // Register the Syndicate in the registry
-        registry.registerSyndicate(
+        emit RegistryCallStarted(treasuryAddress);
+        try registry.registerSyndicate(
             treasuryAddress,
             msg.sender,
             _name,
             _cause,
             _causeAddress,
             _causePercentage
-        );
+        ) {
+            emit RegistryCallCompleted(treasuryAddress);
+        } catch Error(string memory reason) {
+            revert(string(abi.encodePacked("SyndicateFactory: registry call failed - ", reason)));
+        } catch {
+            revert("SyndicateFactory: registry call failed - unknown error");
+        }
 
         // Emit creation event
         emit SyndicateCreated(

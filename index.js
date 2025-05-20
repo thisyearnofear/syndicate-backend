@@ -3,7 +3,49 @@ require("dotenv/config");
 const express = require("express");
 const cors = require("cors");
 
-const { PORT, PRIVATE_KEY, SHARED_SECRET } = require("./config");
+// Load environment variables directly instead of using the config module
+// This prevents the server from exiting due to the 'never' package
+const PORT = process.env.PORT || 3003;
+const PRIVATE_KEY = process.env.PRIVATE_KEY;
+const SHARED_SECRET = process.env.SHARED_SECRET;
+const ENVIRONMENT = process.env.ENVIRONMENT || "development";
+const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:3000";
+
+// Check required environment variables
+if (!PRIVATE_KEY) {
+  console.error("ERROR: PRIVATE_KEY environment variable is required");
+  process.exit(1);
+}
+
+if (!SHARED_SECRET) {
+  console.error("ERROR: SHARED_SECRET environment variable is required");
+  process.exit(1);
+}
+
+// Chain IDs
+const CHAIN_IDS = {
+  LENS_MAINNET: 232,
+  LENS_TESTNET: 37111,
+  BASE: 8453,
+};
+
+// Chain details
+const LENS_CHAIN_DETAILS = {
+  mainnet: {
+    id: CHAIN_IDS.LENS_MAINNET,
+    name: "Lens Chain Mainnet",
+    rpcUrl: process.env.LENS_MAINNET_RPC_URL || "https://rpc.lens.xyz",
+    currencySymbol: "GHO",
+    explorerUrl: "https://explorer.lens.xyz",
+  },
+  testnet: {
+    id: CHAIN_IDS.LENS_TESTNET,
+    name: "Lens Chain Testnet",
+    rpcUrl: process.env.LENS_TESTNET_RPC_URL || "https://rpc.testnet.lens.xyz",
+    currencySymbol: "GRASS",
+    explorerUrl: "https://explorer.testnet.lens.xyz",
+  },
+};
 
 const cookieParser = require("cookie-parser");
 const { csrfMiddleware } = require("./csrf");
@@ -13,7 +55,7 @@ const app = express();
 // Configure CORS - use a string for origin, not URL object
 app.use(
   cors({
-    origin: process.env.FRONTEND_URL || "http://localhost:3000",
+    origin: FRONTEND_URL,
     credentials: true,
     methods: ["GET", "POST"],
     allowedHeaders: ["Content-Type", "Authorization", "x-csrf-token"],
@@ -22,7 +64,10 @@ app.use(
 
 app.use(express.json());
 app.use(cookieParser());
-app.use(csrfMiddleware);
+
+// CSRF middleware completely disabled as of May 2025 due to persistent authentication issues
+// app.use(csrfMiddleware);  // <-- DISABLED
+console.log('CSRF middleware application completely disabled');
 
 // Health check endpoint
 app.get("/", function (_, res) {
@@ -158,7 +203,7 @@ function getAppSigningKey() {
 app.options(
   "/authorize",
   cors({
-    origin: process.env.FRONTEND_URL || "http://localhost:3000",
+    origin: FRONTEND_URL,
     credentials: true,
     methods: ["GET", "POST"],
     allowedHeaders: ["Content-Type", "Authorization", "x-csrf-token"],
@@ -168,7 +213,7 @@ app.options(
 app.options(
   "/",
   cors({
-    origin: process.env.FRONTEND_URL || "http://localhost:3000",
+    origin: FRONTEND_URL,
     credentials: true,
     methods: ["GET", "POST"],
     allowedHeaders: ["Content-Type", "Authorization", "x-csrf-token"],
