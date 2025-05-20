@@ -9,7 +9,7 @@ const PORT = process.env.PORT || 3003;
 const PRIVATE_KEY = process.env.PRIVATE_KEY;
 const SHARED_SECRET = process.env.SHARED_SECRET;
 const ENVIRONMENT = process.env.ENVIRONMENT || "development";
-const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:3000";
+const FRONTEND_URL = (process.env.FRONTEND_URL || "http://localhost:3000").replace(/\/$/, ''); // Remove trailing slash if present
 
 // Check required environment variables
 if (!PRIVATE_KEY) {
